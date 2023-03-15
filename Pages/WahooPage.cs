@@ -5,6 +5,7 @@ using SeleniumExtras.PageObjects;
 using SeleniumExtras.WaitHelpers;
 using SeleniumTest.Pages;
 using System;
+using System.IO.Compression;
 using System.Net;
 using System.Numerics;
 using System.Xml.Linq;
@@ -81,32 +82,43 @@ namespace SeleniumTest.Pages
         [FindsBy(How = How.XPath, Using = "//input[contains(@id,'email')]")]
         public IWebElement EmailField;
 
-        [FindsBy(How = How.XPath, Using = "//input[contains(@id,'email')]")]
+        [FindsBy(How = How.XPath, Using = "//input[contains(@name,'firstname')]")]
         public IWebElement FirstNameField;
 
-        [FindsBy(How = How.XPath, Using = "//input[contains(@id,'email')]")]
-        public IWebElement SecondNameField;
+        [FindsBy(How = How.XPath, Using = "//input[contains(@name,'lastname')]")]
+        public IWebElement LastNameField;
 
-        [FindsBy(How = How.XPath, Using = "//input[contains(@id,'email')]")]
+        [FindsBy(How = How.XPath, Using = "//input[contains(@name,'street[0]')]")]
         public IWebElement StreetAddressField;
 
-        [FindsBy(How = How.XPath, Using = "//input[contains(@id,'email')]")]
+        [FindsBy(How = How.XPath, Using = "//input[contains(@name,'city')]")]
         public IWebElement CityField;
 
-        [FindsBy(How = How.XPath, Using = "//input[contains(@id,'email')]")]
-        public IWebElement CountryField;
+        [FindsBy(How = How.XPath, Using = "//option[contains(@value,'ES')]")]
+        public IWebElement CountryOptipon;
 
-        [FindsBy(How = How.XPath, Using = "//input[contains(@id,'email')]")]
-        public IWebElement StateField;
+        [FindsBy(How = How.XPath, Using = "//option[contains(@data-title,'Barcelona')]")]
+        public IWebElement StateOption;
 
-        [FindsBy(How = How.XPath, Using = "//input[contains(@id,'email')]")]
+        [FindsBy(How = How.XPath, Using = "//input[contains(@name,'postcode')]")]
         public IWebElement ZipField;
 
-        [FindsBy(How = How.XPath, Using = "//input[contains(@id,'email')]")]
+        [FindsBy(How = How.XPath, Using = "//input[contains(@name,'telephone')]")] 
         public IWebElement PhoneNumberField;
 
-        [FindsBy(How = How.XPath, Using = "//input[contains(@id,'email')]")]
-        public IWebElement CardField;
+        [FindsBy(How = How.XPath, Using = "//input[contains(@data-elements-stable-field-name,'cardNumber')]")]
+        public IWebElement CardNumberField;
+
+        [FindsBy(How = How.XPath, Using = "//input[contains(@data-elements-stable-field-name,'cardExpiry')]")]
+        public IWebElement CardDateField;
+
+        [FindsBy(How = How.XPath, Using = "//input[contains(@data-elements-stable-field-name,'cardCvc')]")]
+        public IWebElement CardCvcField;
+
+        [FindsBy(How = How.XPath, Using = "//div[contains(@data-ui-id,'cart-validationmessages-message-error')]")]
+        public IWebElement CardErrorMessage;
+        
+
 
         public void SelectRandomProduct()
         {
@@ -140,7 +152,7 @@ namespace SeleniumTest.Pages
             }
             catch (Exception)
             {
-
+                driver.Navigate().Back();
                 return false;
             }
 
@@ -197,12 +209,43 @@ namespace SeleniumTest.Pages
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             js.ExecuteScript("arguments[0].click();", PayNowButton);
             wait.Until(driver => EmailErrorMessage.Displayed);
-            ExpresShippingButton.Click();
-            wait.Until(driver => ExpresShippingTotalMethod.Displayed);
-        }
-        public void ShipInfo(string email, string name, string address, string phone, string creditCard)
-        {
+            try
+            {
+                ExpresShippingButton.Click();
+                wait.Until(driver => ExpresShippingTotalMethod.Displayed);
+            } catch (Exception)
+            {
+
+            }
+            wait.Until(driver => !Loader.Displayed);
 
         }
+        public void ShipInfo(string email, string firstName, string lastName, string address,string city, long phoneNumber,int zipNumber, long creditCardNumber, string creditCardDate,int creditCartCvc)
+        {
+            EmailField.SendKeys(email);
+            FirstNameField.SendKeys(firstName);
+            LastNameField.SendKeys(lastName);
+            StreetAddressField.SendKeys(address);
+            PhoneNumberField.SendKeys($"{phoneNumber}");
+            ZipField.SendKeys($"{zipNumber}");
+            CityField.SendKeys(city);
+            CountryOptipon.Click();
+            StateOption.Click();
+            driver.SwitchTo().Frame(driver.FindElement(By.XPath("//iframe[contains(@name,'privateStripeFrame')]")));
+            CardNumberField.SendKeys($"{creditCardNumber}");
+            CardDateField.SendKeys(creditCardDate);
+            CardCvcField.SendKeys($"{creditCartCvc}");
+            driver.SwitchTo().DefaultContent();
+            wait.Until(driver => !Loader.Displayed);
+        }
+
+        public void FinishOrder()
+        {
+            wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("//div[@class='payment-methods']//button[@title='Pay Now']")));
+            IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+            js.ExecuteScript("arguments[0].click();", PayNowButton);
+            wait.Until(driver => !Loader.Displayed);
+        }
+
     }   
 }
