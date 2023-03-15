@@ -1,14 +1,7 @@
-﻿using Microsoft.VisualBasic;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.PageObjects;
 using SeleniumExtras.WaitHelpers;
-using SeleniumTest.Pages;
-using System;
-using System.IO.Compression;
-using System.Net;
-using System.Numerics;
-using System.Xml.Linq;
 
 namespace SeleniumTest.Pages
 {
@@ -24,18 +17,6 @@ namespace SeleniumTest.Pages
 
         [FindsBy(How = How.XPath, Using = "//button[contains(@class,'onetrust-close-btn-handler') and @aria-label='Close']")]
         public IWebElement CloseCookieButton;
-
-         public void CloseCookie()
-        {
-            wait.Until(driver => CloseCookieButton.Displayed);
-            CloseCookieButton.Click();
-        }
-
-        public void JavaScriptClick(IWebElement element)
-        {
-            IJavaScriptExecutor executor = (IJavaScriptExecutor)driver;
-            executor.ExecuteScript("arguments[0].click();", element);
-        }
 
         [FindsBy(How = How.XPath, Using = "//a[@title='Ride']")]
         public IWebElement Products;
@@ -103,7 +84,7 @@ namespace SeleniumTest.Pages
         [FindsBy(How = How.XPath, Using = "//input[contains(@name,'postcode')]")]
         public IWebElement ZipField;
 
-        [FindsBy(How = How.XPath, Using = "//input[contains(@name,'telephone')]")] 
+        [FindsBy(How = How.XPath, Using = "//input[contains(@name,'telephone')]")]
         public IWebElement PhoneNumberField;
 
         [FindsBy(How = How.XPath, Using = "//input[contains(@data-elements-stable-field-name,'cardNumber')]")]
@@ -117,8 +98,18 @@ namespace SeleniumTest.Pages
 
         [FindsBy(How = How.XPath, Using = "//div[contains(@data-ui-id,'cart-validationmessages-message-error')]")]
         public IWebElement CardErrorMessage;
-        
 
+        public void CloseCookie()
+        {
+            wait.Until(driver => CloseCookieButton.Displayed);
+            CloseCookieButton.Click();
+        }
+
+        public void JavaScriptClick(IWebElement element)
+        {
+            IJavaScriptExecutor executor = (IJavaScriptExecutor)driver;
+            executor.ExecuteScript("arguments[0].click();", element);
+        }
 
         public void SelectRandomProduct()
         {
@@ -139,7 +130,8 @@ namespace SeleniumTest.Pages
                     var selectElement = new SelectElement(productElem);
                     var firstSelectedElement = selectElement.Options.Where(oo => oo.Enabled && !oo.Text.Contains("Choose an Option")).First();
                     selectElement.SelectByIndex(selectElement.Options.IndexOf(firstSelectedElement));
-                } catch (Exception)
+                }
+                catch (Exception)
                 {
 
                 }
@@ -184,7 +176,7 @@ namespace SeleniumTest.Pages
             wait.Until(driver => AcceptButton.Displayed);
             AcceptButton.Click();
             wait.Until(driver => driver.FindElements(By.XPath("//a[@class='action delete']")).Count == 1);
-            
+
         }
 
         public void EditCart()
@@ -213,14 +205,15 @@ namespace SeleniumTest.Pages
             {
                 ExpresShippingButton.Click();
                 wait.Until(driver => ExpresShippingTotalMethod.Displayed);
-            } catch (Exception)
+            }
+            catch (Exception)
             {
 
             }
             wait.Until(driver => !Loader.Displayed);
 
         }
-        public void ShipInfo(string email, string firstName, string lastName, string address,string city, long phoneNumber,int zipNumber, long creditCardNumber, string creditCardDate,int creditCartCvc)
+        public void ShipInfo(string email, string firstName, string lastName, string address, string city, long phoneNumber, int zipNumber, long creditCardNumber, string creditCardDate, int creditCartCvc)
         {
             EmailField.SendKeys(email);
             FirstNameField.SendKeys(firstName);
@@ -247,5 +240,5 @@ namespace SeleniumTest.Pages
             wait.Until(driver => !Loader.Displayed);
         }
 
-    }   
+    }
 }

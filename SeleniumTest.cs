@@ -1,7 +1,3 @@
-using NUnit.Framework;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
 using SeleniumTest.Pages;
 
 namespace SeleniumTest
@@ -47,7 +43,7 @@ namespace SeleniumTest
             wahooPage.RemoveFromCart();
             wahooPage.EditCart();
             wahooPage.CheckoutCart();
-            wahooPage.ShipInfo(email,firstName,lastName,address, city, phoneNumber,zipNumber,creditCardNumber,creditCardDate, creditCardCvc);
+            wahooPage.ShipInfo(email, firstName, lastName, address, city, phoneNumber, zipNumber, creditCardNumber, creditCardDate, creditCardCvc);
             wahooPage.FinishOrder();
             Assert.IsTrue(wahooPage.CardErrorMessage.Displayed);
         }
